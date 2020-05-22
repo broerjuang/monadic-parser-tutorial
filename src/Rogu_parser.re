@@ -81,3 +81,36 @@ module Functor: FUNCTOR with type t('a) = t('a) = {
   * this extra for free (void, void_right, void_left, flap)
 **/
 include Relude.Extensions.Functor.FunctorExtensions(Functor);
+
+/**
+  * Let's now provide our own apply definition of our Parser
+  * remember that apply signature
+  * apply :: (t('a => 'b)) => t('a) => t('b)
+**/
+
+let apply = (Parser(pf), Parser(pa)) => {
+  Parser(
+    posString =>
+      // apply the first parser, since it's a function
+      pf(posString)
+      // since the result is another parser, we need to flatMap the result
+      |> Result.flatMap(({result: f, suffix: s1})
+           // what we've got is that the result is still a function that wait another argument just like map
+           // apply the result of first apply
+           =>
+             pa(s1)
+             // flatMap it again
+             |> Result.flatMap(({result: a, suffix: s2})
+                  // and return the result
+                  => Ok({result: f(a), suffix: s2}))
+           ),
+  );
+};
+
+module Apply: APPLY with type t('a) = t('a) = {
+  include Functor;
+  let apply = apply;
+};
+
+include Relude.Extensions.Apply.ApplyExtensions(Apply);
+
