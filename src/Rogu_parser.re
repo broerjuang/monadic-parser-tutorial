@@ -107,6 +107,52 @@ let apply = (Parser(pf), Parser(pa)) => {
   );
 };
 
+/**
+----------- apply using option ------------------------
+if you're confused how that works. it's alright; let's take a look on the more simpler example
+ that implement apply, an option
+{[
+  let square = (x) => {x * x};
+  apply(Some(square), Some(12)) == Some(144);
+  apply(Some(square), None) == None;
+  apply(None, Some(12)) == None;
+  apply(None, None) == None;
+]}
+
+from that we can infer that it only apply the function if both argument is Some. And if we look at the implementation, we may get
+
+let apply = (optFn, opt) => {
+ switch(optFn) {
+ | Some(fn) => {
+     switch(opt) {
+      | Some(value) => Some(fn(value))
+      | None => None
+    }
+   }
+  | None => None
+ }
+}
+
+or implement it using map
+
+let apply = (optFn, opt) => {
+  switch(optFn) {
+    | Some(fn) => map(fn, opt)
+    | None => None
+  }
+}
+
+------------- Apply in Result ------------------------
+let apply = (res_fn, res) => {
+  switch(res_fn) {
+    | Ok(fn) => map(fn, a)
+    | Error(fn) => Error(fn)
+  }
+}
+
+------------ Apply in List --------------------------
+could you try this one?
+**/
 module Apply: APPLY with type t('a) = t('a) = {
   include Functor;
   let apply = apply;
