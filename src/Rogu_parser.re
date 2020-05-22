@@ -160,3 +160,28 @@ module Apply: APPLY with type t('a) = t('a) = {
 
 include Relude.Extensions.Apply.ApplyExtensions(Apply);
 
+/**
+  * Sometimes, however, I forget that Applicative is an extension of type class apply, my bad.
+  * what is the difference between apply and applicative lies in the existace of pure
+
+  pure :: 'a => t('a)
+
+  take expression and returned a box version of it, quite easy right?
+
+  Quoted from http://eed3si9n.com/learning-scalaz/Applicative.html
+  "pure should take a value of any type and return an applicative value with that value inside it. … A better way of thinking about pure would be to say that it takes a value and puts it in some sort of default (or pure) context—a minimal context that still yields that value."
+
+  Let's implement Applicative type class then!
+**/
+
+let pure = a =>
+  Parser(posString => Result.Ok({result: a, suffix: posString}));
+
+/** and put it into applicative instance **/
+module Applicative: APPLICATIVE with type t('a) = t('a) = {
+  include Apply;
+  let pure = pure;
+};
+
+include Relude.Extensions.Applicative.ApplicativeExtensions(Applicative);
+
