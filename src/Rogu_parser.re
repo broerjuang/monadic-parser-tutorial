@@ -269,3 +269,10 @@ module Monad: MONAD with type t('a) = t('a) = {
 };
 
 include Relude.Extensions.Monad.MonadExtensions(Monad);
+
+module Infix = {
+  include Relude.Extensions.Functor.FunctorInfix(Functor);
+  include Relude.Extensions.Apply.ApplyInfix(Apply);
+  include Relude.Extensions.Alt.AltInfix(Alt);
+  include Relude.Extensions.Monad.MonadInfix(Monad);
+};
