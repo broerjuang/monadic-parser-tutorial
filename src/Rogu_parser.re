@@ -185,3 +185,87 @@ module Applicative: APPLICATIVE with type t('a) = t('a) = {
 
 include Relude.Extensions.Applicative.ApplicativeExtensions(Applicative);
 
+/**
+  * Let's implement alt type class
+  * for me it's type class that define alternative, from left to right
+  * if first one is failed, try the second, if still fail; let it fail
+
+  --------------
+  * ups, I forget to mention about infix function.
+  * Let's start:
+  * functor : map has an <$> operator
+  * Apply: apply has <*>
+  * Alt: alt has <|> (just like or, right)
+  -------------
+  Again, with alt :
+
+  so alt has this signature: t('a) => t('a) => t('a)
+
+**/
+
+let alt = (Parser(p1), Parser(p2)) => {
+  Parser(
+    posString => {
+      switch (p1(posString)) {
+      | Ok(_) as ok => ok
+      | Error({pos}) as e =>
+        if (posString.pos == pos) {
+          p2(posString);
+        } else {
+          e;
+        }
+      }
+    },
+  );
+};
+
+/**
+  * Let's include alternative type class
+**/
+module Alt: ALT with type t('a) = t('a) = {
+  include Functor;
+  let alt = alt;
+};
+
+include Relude.Extensions.Alt.AltExtensions(Alt);
+
+/**
+  * last but not least, bind
+  * it's useful if you want to sequencing parsers
+  * bind of flatMap has a signature:
+  bind :: t('a) => ('a => t('b)) => t('b)
+  and the infix operator for this is >>=
+
+  if, again, the signature seems strange, it's alright. Let's take a look at the implementation inside the option
+
+  let bind = (optA, aToOptB) => {
+    switch(optA) {
+     | Some(a) => aToOptB(a)
+     | None => None
+    }
+  }
+
+  in other words, it will apply if the first one is Some and will return the boxed version of the transformation
+
+  let's take a look of our implementation of bind
+**/
+
+let bind = (Parser(pa), aToPB) => {
+  Parser(
+    posString => {
+      pa(posString)
+      |> Result.flatMap(({result, suffix}) => {
+           let Parser(pb) = aToPB(result);
+           pb(suffix);
+         })
+    },
+  );
+};
+
+/** then we will create a monad instance from this **/
+module Monad: MONAD with type t('a) = t('a) = {
+  include Applicative;
+  let flat_map = bind;
+};
+
+include Relude.Extensions.Monad.MonadExtensions(Monad);
