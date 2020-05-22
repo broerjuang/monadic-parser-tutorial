@@ -1,0 +1,22 @@
+{
+  "name": "rogu-parser",
+  "sources": [
+    {
+      "dir": "src",
+      "subdirs": true
+    }
+  ],
+  "package-specs": {
+    "module": "commonjs",
+    "in-source": false
+  },
+  "suffix": ".bs.js",
+  "namespace": false,
+  "bs-dependencies": ["bs-bastet", "relude"],
+  "bs-dev-dependencies": [],
+  "warnings": {
+    "number": "+A-9-40-42",
+    "error": "+A"
+  },
+  "refmt": 3
+}
